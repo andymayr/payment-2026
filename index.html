@@ -71,6 +71,7 @@
       display: grid;
       gap: clamp(18px, 4vw, 26px);
       justify-items: center;
+      width: 100%;
     }
 
     .battery-wrap {
@@ -139,6 +140,7 @@
       font: inherit;
       font-weight: 700;
       font-size: clamp(1rem, 2vw, 1.15rem);
+      line-height: 1.2;
       color: #ffffff;
       background: linear-gradient(135deg, #155f3d, #12a35f);
       box-shadow: 0 16px 30px #1459362e;
@@ -160,12 +162,15 @@
       text-align: center;
       color: var(--text-soft);
       font-size: 0.92rem;
+      line-height: 1.35;
+      max-width: 28ch;
     }
 
     .amount-panel {
       display: grid;
       gap: 10px;
       justify-items: center;
+      width: 100%;
     }
 
     .amount-panel[hidden] {
@@ -183,20 +188,36 @@
     }
 
     @media (max-width: 480px) {
+      body {
+        display: block;
+        padding-top: max(12px, env(safe-area-inset-top));
+      }
+
       .panel {
+        width: 100%;
         border-radius: 18px;
+        padding: 18px 16px 20px;
+        margin: 0 auto;
+      }
+
+      .stage {
+        gap: 14px;
+      }
+
+      .battery-wrap {
+        padding-right: 12px;
       }
 
       .battery {
-        height: 82px;
+        height: 76px;
         border-width: 3px;
         border-radius: 20px;
       }
 
       .battery::after {
-        right: -16px;
+        right: -14px;
         width: 10px;
-        height: 36px;
+        height: 34px;
       }
 
       .fill {
@@ -209,7 +230,17 @@
 
       .caption,
       .amount-note {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
+      }
+
+      .amount-button {
+        width: 100%;
+        min-height: 52px;
+        padding: 14px 18px;
+      }
+
+      .amount-value {
+        font-size: clamp(1.2rem, 8vw, 1.7rem);
       }
     }
   </style>
@@ -234,30 +265,50 @@
   <script>
     const amountButton = document.getElementById("amountButton");
     const amountPanel = document.getElementById("amountPanel");
-    const showLabel = "Show fixed amount";
-    const hideLabel = "Hide fixed amount";
-    const copiedLabel = "Copied: MXN 81,275.60";
+    const labels = {
+      desktop: {
+        show: "Show fixed amount",
+        hide: "Hide fixed amount",
+        copied: "Copied: MXN 81,275.60",
+      },
+      mobile: {
+        show: "Show amount",
+        hide: "Hide amount",
+        copied: "Copied amount",
+      }
+    };
+    const getLabels = () => window.matchMedia("(max-width: 480px)").matches
+      ? labels.mobile
+      : labels.desktop;
+    const syncButtonLabel = () => {
+      const activeLabels = getLabels();
+      amountButton.textContent = amountPanel.hidden ? activeLabels.show : activeLabels.hide;
+    };
     let revealTimer = null;
 
+    syncButtonLabel();
+    window.addEventListener("resize", syncButtonLabel);
+
     amountButton.addEventListener("click", async () => {
+      const activeLabels = getLabels();
       const wasHidden = amountPanel.hidden;
       amountPanel.hidden = !wasHidden;
 
       if (wasHidden) {
         clearTimeout(revealTimer);
-        amountButton.textContent = copiedLabel;
+        amountButton.textContent = activeLabels.copied;
         try {
           await navigator.clipboard.writeText("MXN 81,275.60");
         } catch {
         }
         revealTimer = setTimeout(() => {
           if (!amountPanel.hidden) {
-            amountButton.textContent = hideLabel;
+            amountButton.textContent = getLabels().hide;
           }
         }, 1400);
       } else {
         clearTimeout(revealTimer);
-        amountButton.textContent = showLabel;
+        amountButton.textContent = activeLabels.show;
       }
     });
   </script>
