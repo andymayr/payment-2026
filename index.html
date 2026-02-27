@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Payment Progress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-start: #f6fbf8;
+      --bg-end: #dcefe5;
+      --card: #ffffffd9;
+      --text-main: #10251c;
+      --text-soft: #3d5f50;
+      --accent: #12a35f;
+      --accent-soft: #8ee0b4;
+      --accent-empty: #d4ebdf;
+      --stroke: #1e3d2f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      font-family: "Space Grotesk", sans-serif;
+      background: radial-gradient(circle at 15% 20%, #ffffff 0%, transparent 45%),
+        linear-gradient(140deg, var(--bg-start), var(--bg-end));
+      color: var(--text-main);
+      padding:
+        max(16px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    }
+
+    .panel {
+      width: min(760px, 100%);
+      background: var(--card);
+      backdrop-filter: blur(5px);
+      border: 1px solid #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 20px 45px #0f2c1c1f;
+      padding: clamp(18px, 5vw, 32px);
+      animation: fadeIn 500ms ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        transform: translateY(10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .stage {
+      display: grid;
+      gap: clamp(18px, 4vw, 26px);
+      justify-items: center;
+    }
+
+    .battery-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding-right: 16px;
+    }
+
+    .battery {
+      position: relative;
+      width: 100%;
+      height: clamp(88px, 18vw, 150px);
+      border: 4px solid var(--stroke);
+      border-radius: 24px;
+      padding: clamp(8px, 2.2vw, 10px);
+      background: #f5fcf8;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 48px;
+      border-radius: 0 8px 8px 0;
+      background: var(--stroke);
+    }
+
+    .fill {
+      height: 100%;
+      width: 34.84%;
+      border-radius: 14px;
+      background: linear-gradient(90deg, var(--accent-soft), var(--accent));
+      box-shadow: inset 0 0 14px #0f6237a6;
+    }
+
+    .percent {
+      text-align: center;
+      font-weight: 700;
+      font-size: clamp(2.8rem, 9vw, 5rem);
+      color: #155f3d;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.04em;
+    }
+
+    .caption {
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+      max-width: 24ch;
+      margin: 0;
+    }
+
+    .amount-button {
+      border: 0;
+      border-radius: 999px;
+      min-height: 54px;
+      width: min(100%, 320px);
+      padding: 16px 24px;
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: #ffffff;
+      background: linear-gradient(135deg, #155f3d, #12a35f);
+      box-shadow: 0 16px 30px #1459362e;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .amount-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 34px #14593638;
+    }
+
+    .amount-button:active {
+      transform: translateY(0);
+    }
+
+    .amount-note {
+      margin: 0;
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.92rem;
+    }
+
+    .amount-panel {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+    }
+
+    .amount-panel[hidden] {
+      display: none;
+    }
+
+    .amount-value {
+      margin: 0;
+      text-align: center;
+      font-weight: 700;
+      font-size: clamp(1.35rem, 4vw, 2rem);
+      color: #155f3d;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 480px) {
+      .panel {
+        border-radius: 18px;
+      }
+
+      .battery {
+        height: 82px;
+        border-width: 3px;
+        border-radius: 20px;
+      }
+
+      .battery::after {
+        right: -16px;
+        width: 10px;
+        height: 36px;
+      }
+
+      .fill {
+        border-radius: 10px;
+      }
+
+      .percent {
+        font-size: clamp(2.5rem, 14vw, 4rem);
+      }
+
+      .caption,
+      .amount-note {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <section class="stage" aria-label="Payment percentage indicator">
+      <div class="battery-wrap">
+        <div class="battery">
+          <div class="fill"></div>
+        </div>
+      </div>
+      <div class="percent">34.84%</div>
+      <p class="caption">Paid toward the total amount.</p>
+      <button class="amount-button" id="amountButton" type="button">Show fixed amount</button>
+      <div class="amount-panel" id="amountPanel" hidden>
+        <p class="amount-value">MXN 81,275.60</p>
+        <p class="amount-note">€4,000 fixed at 20.3189 MXN per EUR on February 27, 2026.</p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const amountButton = document.getElementById("amountButton");
+    const amountPanel = document.getElementById("amountPanel");
+    const showLabel = "Show fixed amount";
+    const hideLabel = "Hide fixed amount";
+    const copiedLabel = "Copied: MXN 81,275.60";
+    let revealTimer = null;
+
+    amountButton.addEventListener("click", async () => {
+      const wasHidden = amountPanel.hidden;
+      amountPanel.hidden = !wasHidden;
+
+      if (wasHidden) {
+        clearTimeout(revealTimer);
+        amountButton.textContent = copiedLabel;
+        try {
+          await navigator.clipboard.writeText("MXN 81,275.60");
+        } catch {
+        }
+        revealTimer = setTimeout(() => {
+          if (!amountPanel.hidden) {
+            amountButton.textContent = hideLabel;
+          }
+        }, 1400);
+      } else {
+        clearTimeout(revealTimer);
+        amountButton.textContent = showLabel;
+      }
+    });
+  </script>
+</body>
+</html>
